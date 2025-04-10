@@ -1,0 +1,135 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Çark Oyunu</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #f4f4f4;
+      padding-top: 50px;
+    }
+    .game-container {
+      background: white;
+      padding: 20px;
+      display: inline-block;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    input, select {
+      margin: 10px;
+      padding: 5px;
+      width: 150px;
+    }
+    #wheel {
+      margin-top: 20px;
+      font-size: 24px;
+    }
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .number-box {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .number {
+      width: 40px;
+      height: 40px;
+      line-height: 40px;
+      border-radius: 50%;
+      color: white;
+      font-weight: bold;
+    }
+    .red { background-color: red; }
+    .black { background-color: black; }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Şansını Dene!</h1>
+
+    <label for="amount">Bahis Miktarı:</label>
+    <input type="number" id="amount" min="1"><br>
+
+    <label for="guess">Bir Sayı Seç (Opsiyonel):</label>
+    <select id="guess">
+      <option value="">Seçme</option>
+      ${[...Array(10)].map((_, i) => `<option value="${i+1}">${i+1}</option>`).join("")}
+    </select><br>
+
+    <label for="color">Veya Bir Renk Seç:</label>
+    <select id="color">
+      <option value="">Seçme</option>
+      <option value="red">Kırmızı</option>
+      <option value="black">Siyah</option>
+    </select><br>
+
+    <button onclick="spinWheel()">Çarkı Döndür</button>
+
+    <div class="number-box">
+      ${[...Array(10)].map((_, i) => {
+        const color = i % 2 === 0 ? 'red' : 'black';
+        return `<div class="number ${color}">${i + 1}</div>`;
+      }).join("")}
+    </div>
+
+    <div id="wheel"></div>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function spinWheel() {
+      const betAmount = parseFloat(document.getElementById("amount").value);
+      const selectedNumber = document.getElementById("guess").value;
+      const selectedColor = document.getElementById("color").value;
+      const resultDiv = document.getElementById("result");
+      const wheelDiv = document.getElementById("wheel");
+
+      if (isNaN(betAmount) || betAmount <= 0) {
+        resultDiv.textContent = "Geçerli bahis miktarı girin.";
+        return;
+      }
+
+      if (!selectedNumber && !selectedColor) {
+        resultDiv.textContent = "En az bir seçim yapmalısınız.";
+        return;
+      }
+
+      const spunNumber = Math.floor(Math.random() * 10) + 1;
+      const spunColor = spunNumber % 2 === 0 ? 'red' : 'black';
+
+      wheelDiv.textContent = `Çark ${spunNumber} (${spunColor.toUpperCase()}) sayısına döndü!`;
+
+      let totalWin = 0;
+
+      if (selectedNumber && parseInt(selectedNumber) === spunNumber) {
+        totalWin += betAmount * 2;
+      }
+
+      if (selectedColor && selectedColor === spunColor) {
+        totalWin += betAmount * 0.5;
+      }
+
+      if (totalWin > 0) {
+        resultDiv.textContent = `Kazandınız! Toplam kazanç: ${totalWin.toFixed(2)} TL`;
+      } else {
+        resultDiv.textContent = `Maalesef kaybettiniz. ${betAmount} TL gitti.`;
+      }
+
+      // Burada Speed Walletta bağlantısı yapılabilir:
+      // if (window.ethereum) {
+      //   window.ethereum.request({ method: 'eth_requestAccounts' }).then(accounts => {
+      //     const userWallet = accounts[0];
+      //     // Kazanılan para kullanıcıya Web3 ile gönderilebilir
+      //   });
+      // }
+    }
+  </script>
+</body>
+</html>
